@@ -1,24 +1,25 @@
-﻿using BadBroker.WebApi.Services;
+﻿using BadBroker.WebApi.Controllers.RequestHandlers;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BadBroker.WebApi.Controllers
 {
-    [Route("api/rates")]
+    [Route("api/v1")]
+    [Route("rates")]
     [ApiController]
     public class BrokerController : ControllerBase
     {
-        IRatesService _ratesService;
-        public BrokerController(IRatesService ratesService)
+        private readonly Func<BestRateRequestHandler> _bestRateRequestHander;
+        
+        public BrokerController(Func<BestRateRequestHandler> bestRateRequestHander)
         {
-            _ratesService = ratesService;
+            _bestRateRequestHander= bestRateRequestHander;
         }        
 
         [HttpGet("best")]
-        public IEnumerable<string> GetBestRates(DateTime startDate, DateTime endDate, decimal moneyUsd)
+        public IActionResult GetBestRates([FromQuery]BestRateRequest request)
         {
-
+            var result = _bestRateRequestHander().Handle(request); 
+            return Ok(result);
         }        
     }
 }
